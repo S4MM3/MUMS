@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 Lagbalansering</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:     #0D0F14;
+    --card:   #161B25;
+    --card2:  #1A2133;
+    --accent: #00D4AA;
+    --blue:   #0099FF;
+    --text:   #E8EAF0;
+    --muted:  #6B7280;
+    --red:    #FF5B5B;
+    --border: #252D3D;
+    --yellow: #FFD166;
+    --orange: #FFB347;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 60px;
+  }
+
+  /* ── Background grid ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 700px;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .logo span { color: var(--text); }
+
+  .badge {
+    background: rgba(0, 212, 170, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(0, 212, 170, 0.3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* ── Player grid ── */
+  .players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .player-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.15s;
+  }
+
+  .player-row:focus-within {
+    border-color: rgba(0, 212, 170, 0.5);
+  }
+
+  .player-index {
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .player-row input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    width: 100%;
+  }
+
+  .player-row input.elo-input {
+    color: var(--accent);
+    width: 64px;
+    min-width: 64px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  .player-row input::placeholder { color: var(--muted); }
+
+  .sep { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; }
+
+  /* ── Add/remove player ── */
+  .player-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .btn-secondary {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+  /* ── Main button ── */
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #0D0F14;
+    border: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 28px;
+    transition: filter 0.15s, transform 0.1s;
+  }
+
+  .btn-primary:hover  { filter: brightness(1.1); }
+  .btn-primary:active { transform: scale(0.99); }
+
+  /* ── Result ── */
+  .result { display: none; }
+  .result.visible { display: block; }
+
+  .teams-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .team-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .team-header {
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .team-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .team-total-label {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .team-total-val {
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .team-players { padding: 6px 0; }
+
+  .team-player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 14px;
+    transition: background 0.1s;
+  }
+
+  .team-player:hover { background: var(--card2); }
+
+  .team-player .pname { font-size: 14px; }
+
+  .team-player .pelo {
+    font-size: 13px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Diff bar ── */
+  .diff-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .diff-left { display: flex; flex-direction: column; gap: 3px; }
+  .diff-title { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .diff-sub   { font-size: 11px; color: var(--muted); opacity: 0.7; }
+
+  .diff-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+  }
+
+  /* ── Accent top border via box shadow ── */
+  .team-t1 { box-shadow: inset 0 2px 0 var(--accent); }
+  .team-t2 { box-shadow: inset 0 2px 0 var(--blue); }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .team-card, .diff-bar { animation: fadeUp 0.25s ease both; }
+  .team-card:nth-child(2) { animation-delay: 0.05s; }
+
+  /* ── Responsive ── */
+  @media (max-width: 520px) {
+    .players-grid { grid-template-columns: 1fr; }
+    .teams-grid   { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">LAG<span>BALAN</span>S</div>
+    <div class="badge">CS2 Faceit</div>
+  </header>
+
+  <div class="section-label">Spelare &amp; Elo</div>
+
+  <div class="players-grid" id="playersGrid"></div>
+
+  <div class="player-actions">
+    <button class="btn-secondary" onclick="addPlayer()">+ Lägg till spelare</button>
+    <button class="btn-secondary" onclick="removePlayer()">− Ta bort sista</button>
+  </div>
+
+  <button class="btn-primary" onclick="balance()">⚡ Balansera lag</button>
+
+  <div class="result" id="result">
+    <div class="section-label">Bästa uppdelningen</div>
+    <div class="teams-grid" id="teamsGrid"></div>
+    <div class="diff-bar">
+      <div class="diff-left">
+        <div class="diff-title">Elo-skillnad mellan lagen</div>
+        <div class="diff-sub" id="diffSub"></div>
+      </div>
+      <div class="diff-val" id="diffVal"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DEFAULT_PLAYERS = [
+  {name:"Samme",  elo:2183},
+  {name:"Kalle",  elo:3025},
+  {name:"Erri",   elo:2122},
+  {name:"Balrog", elo:1755},
+  {name:"Fjunk",  elo:1665},
+  {name:"Jens",   elo:1975},
+  {name:"Gunnar", elo:2338},
+  {name:"Podd",   elo:1901},
+  {name:"Steffo", elo:1958},
+  {name:"Viktor", elo:1711},
+];
+
+const grid = document.getElementById('playersGrid');
+
+function renderPlayers() {
+  grid.innerHTML = '';
+  DEFAULT_PLAYERS.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <span class="player-index">${i + 1}</span>
+      <input type="text" placeholder="Namn" value="${p.name}"
+             oninput="DEFAULT_PLAYERS[${i}].name = this.value">
+      <div class="sep"></div>
+      <input type="number" class="elo-input" min="0" max="9999" value="${p.elo}"
+             oninput="DEFAULT_PLAYERS[${i}].elo = parseInt(this.value)||0">
+    `;
+    grid.appendChild(row);
+  });
+}
+
+function addPlayer() {
+  DEFAULT_PLAYERS.push({name: 'Spelare', elo: 2000});
+  renderPlayers();
+}
+
+function removePlayer() {
+  if (DEFAULT_PLAYERS.length > 2) {
+    DEFAULT_PLAYERS.pop();
+    renderPlayers();
+  }
+}
+
+function* combinations(arr, k) {
+  if (k === 0) { yield []; return; }
+  for (let i = 0; i <= arr.length - k; i++) {
+    for (const rest of combinations(arr.slice(i + 1), k - 1)) {
+      yield [arr[i], ...rest];
+    }
+  }
+}
+
+function balance() {
+  const players = DEFAULT_PLAYERS.map(p => ({...p}));
+  const n = players.length;
+  const half = Math.floor(n / 2);
+  const total = players.reduce((s, p) => s + p.elo, 0);
+
+  let bestDiff = Infinity, bestIndices = null;
+  const indices = players.map((_, i) => i);
+
+  for (const combo of combinations(indices, half)) {
+    const sum = combo.reduce((s, i) => s + players[i].elo, 0);
+    const diff = Math.abs(sum - (total - sum));
+    if (diff < bestDiff) { bestDiff = diff; bestIndices = new Set(combo); }
+  }
+
+  const t1 = players.filter((_, i) =>  bestIndices.has(i)).sort((a,b) => b.elo - a.elo);
+  const t2 = players.filter((_, i) => !bestIndices.has(i)).sort((a,b) => b.elo - a.elo);
+
+  const teamsGrid = document.getElementById('teamsGrid');
+  teamsGrid.innerHTML = teamHTML('LAG 1', t1, 'accent', 'team-t1') + teamHTML('LAG 2', t2, 'blue', 'team-t2');
+
+  const perPlayer = Math.round(bestDiff / half);
+  document.getElementById('diffVal').textContent = bestDiff.toLocaleString('sv-SE') + ' elo';
+  document.getElementById('diffSub').textContent = `≈ ${perPlayer} elo per spelare`;
+
+  const result = document.getElementById('result');
+  result.classList.add('visible');
+  result.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
+
+function teamHTML(label, players, colorVar, cls) {
+  const total = players.reduce((s,p) => s + p.elo, 0);
+  const color = colorVar === 'accent' ? 'var(--accent)' : 'var(--blue)';
+  const rows = players.map(p => `
+    <div class="team-player">
+      <span class="pname">${p.name}</span>
+      <span class="pelo">${p.elo.toLocaleString('sv-SE')}</span>
+    </div>`).join('');
+  return `
+    <div class="team-card ${cls}">
+      <div class="team-header">
+        <span class="team-name" style="color:${color}">${label}</span>
+        <div style="text-align:right">
+          <div class="team-total-label">Total ELO</div>
+          <div class="team-total-val" style="color:${color}">${total.toLocaleString('sv-SE')}</div>
+        </div>
+      </div>
+      <div class="team-players">${rows}</div>
+    </div>`;
+}
+
+renderPlayers();
+balance();
+</script>
+</body>
+</html>
