@@ -119,7 +119,7 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 .queue-tag{margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.5px;
   padding:2px 8px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
 .tag-bench{background:rgba(255,91,91,.15);color:var(--red)}
-.tag-play{background:rgba(0,212,170,.12);color:var(--accent)}
+.tag-play{background:rgba(255,107,0,.12);color:var(--accent)}
 
 /* HJULINDELNING — team columns */
 .indelning-teams{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -152,7 +152,7 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 #finalModal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);
   align-items:center;justify-content:center}
 .final-inner{background:#161B25;border:1px solid #252D3D;border-radius:16px;padding:32px 36px;
-  max-width:420px;width:90%;text-align:center;box-shadow:0 0 60px rgba(0,212,170,.15)}
+  max-width:420px;width:90%;text-align:center;box-shadow:0 0 60px rgba(255,107,0,.15)}
 
 @media(max-width:700px){
   .wheel-layout{grid-template-columns:1fr}
@@ -293,21 +293,21 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 <!-- FINAL MODAL (mumshjulet) -->
 <div id="finalModal">
   <div class="final-inner">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#00D4AA;letter-spacing:2px;margin-bottom:6px">KLART!</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#FF6B00;letter-spacing:2px;margin-bottom:6px">KLART!</div>
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;color:#E8EAF0;letter-spacing:1px;margin-bottom:24px">Lycka till pöjkar 🎉</div>
     <div id="finalList" style="text-align:left;margin-bottom:16px"></div>
-    <button onclick="copyToTS()" id="copyBtn" style="background:#161B25;color:#00D4AA;border:1px solid #00D4AA;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:11px;border-radius:8px;cursor:pointer;width:100%;margin-bottom:10px">📋 Kopiera listan till TS</button>
-    <button onclick="location.reload()" style="background:#00D4AA;color:#0D0F14;border:none;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:8px;cursor:pointer;width:100%">Kör igen</button>
+    <button onclick="copyToTS()" id="copyBtn" style="background:#161B25;color:#FF6B00;border:1px solid #FF6B00;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:11px;border-radius:8px;cursor:pointer;width:100%;margin-bottom:10px">📋 Kopiera listan till TS</button>
+    <button onclick="location.reload()" style="background:#FF6B00;color:#0D0F14;border:none;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:8px;cursor:pointer;width:100%">Kör igen</button>
   </div>
 </div>
 
 <!-- INDELNING FINAL MODAL -->
 <div id="indelModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);align-items:center;justify-content:center">
   <div class="final-inner" style="max-width:520px">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#00D4AA;letter-spacing:2px;margin-bottom:6px">LAGEN ÄR KLARA!</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#FF6B00;letter-spacing:2px;margin-bottom:6px">LAGEN ÄR KLARA!</div>
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;color:#E8EAF0;letter-spacing:1px;margin-bottom:22px">Lycka till pöjkar 🎉</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px" id="indelFinalTeams"></div>
-    <button onclick="location.reload()" style="background:#00D4AA;color:#0D0F14;border:none;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:8px;cursor:pointer;width:100%">Kör igen</button>
+    <button onclick="location.reload()" style="background:#FF6B00;color:#0D0F14;border:none;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:8px;cursor:pointer;width:100%">Kör igen</button>
   </div>
 </div>
 
@@ -343,7 +343,7 @@ const PLAYER_TEXTS={
   "Kalle":"ANNIKA BUKISBRÖDER"
 };
 
-const WCOLS_BASE=['#FF5B5B','#00D4AA','#FFD166','#0099FF','#FF8C42','#C084FC','#4ADE80','#F472B6','#38BDF8','#A3E635'];
+const WCOLS_BASE=['#FF5B5B','#FF6B00','#FFD166','#0099FF','#FF8C42','#C084FC','#4ADE80','#F472B6','#38BDF8','#A3E635'];
 const WCOLS=[...WCOLS_BASE].sort(()=>Math.random()-.5);
 
 /* ══════════════════ BALANSERA LAG ══════════════════ */
@@ -416,7 +416,7 @@ function drawWheelOnCanvas(canvasId, players, currentAngle){
   }
   ctx.beginPath();ctx.arc(cx,cy,20,0,2*Math.PI);
   ctx.fillStyle='#0D0F14';ctx.fill();ctx.strokeStyle='#252D3D';ctx.lineWidth=2;ctx.stroke();
-  ctx.font="bold 16px 'Rajdhani',sans-serif";ctx.fillStyle='#00D4AA';
+  ctx.font="bold 16px 'Rajdhani',sans-serif";ctx.fillStyle='#FF6B00';
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n,cx,cy);
 }
 
@@ -629,7 +629,7 @@ function launchFireworks(){
   const cv=document.getElementById('fwCanvas');cv.style.display='block';
   cv.width=window.innerWidth;cv.height=window.innerHeight;
   const ctx=cv.getContext('2d');const particles=[];
-  const FCOLS=['#00D4AA','#FFD166','#FF5B5B','#0099FF','#FF8C42','#C084FC','#4ADE80','#fff'];
+  const FCOLS=['#FF6B00','#FFD166','#FF5B5B','#0099FF','#FF8C42','#C084FC','#4ADE80','#fff'];
   function burst(x,y){
     for(let i=0;i<100;i++){
       const a=Math.random()*2*Math.PI,sp=2+Math.random()*8;
@@ -670,7 +670,7 @@ function showFinalModal(){
     const bench=i<benchCount;
     const tag=bench
       ?`<span style="margin-left:auto;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:rgba(255,91,91,.15);color:#FF5B5B;text-transform:uppercase">Står över</span>`
-      :`<span style="margin-left:auto;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:rgba(0,212,170,.12);color:#00D4AA;text-transform:uppercase">Spelar</span>`;
+      :`<span style="margin-left:auto;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:rgba(255,107,0,.12);color:#FF6B00;text-transform:uppercase">Spelar</span>`;
     return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #252D3D">
       <div style="width:12px;height:12px;border-radius:50%;background:${p.color};flex-shrink:0"></div>
       <span style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;color:#E8EAF0">${i+1}. ${p.name}</span>${tag}
@@ -693,7 +693,7 @@ function showIndelModal(){
     </div>`;
   }
   document.getElementById('indelFinalTeams').innerHTML=
-    lagHTML(iLag1,'LAG 1','#00D4AA')+lagHTML(iLag2,'LAG 2','#0099FF');
+    lagHTML(iLag1,'LAG 1','#FF6B00')+lagHTML(iLag2,'LAG 2','#0099FF');
   document.getElementById('indelModal').style.display='flex';
 }
 
