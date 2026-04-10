@@ -122,10 +122,11 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 .tag-play{background:rgba(255,107,0,.12);color:var(--accent)}
 
 /* HJULINDELNING — team columns */
-.indelning-teams{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.indelning-teams{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
 .lag-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.lag-header{padding:10px 16px;border-bottom:1px solid var(--border);
-  font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.lag-header{padding:8px 12px;border-bottom:1px solid var(--border);
+  font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:0;text-transform:uppercase;
+  min-height:44px;display:flex;align-items:center;line-height:1.2}
 .lag-list{padding:6px 0;min-height:44px}
 .lag-item{display:flex;align-items:center;gap:10px;padding:8px 16px;animation:fadeUp .2s ease both}
 .lag-item .wheel-dot{width:11px;height:11px}
@@ -225,13 +226,13 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
     <div class="wheel-left">
       <div class="indelning-teams">
         <div class="lag-card" style="box-shadow:inset 0 2px 0 var(--accent)">
-          <div class="lag-header" style="color:var(--accent)">LAG 1</div>
+          <div class="lag-header" id="lag1Header" style="color:var(--accent)">LAG 1</div>
           <div class="lag-list" id="lag1List">
             <div style="padding:10px 16px;font-size:13px;color:var(--muted)">Ingen ännu</div>
           </div>
         </div>
         <div class="lag-card" style="box-shadow:inset 0 2px 0 var(--blue)">
-          <div class="lag-header" style="color:var(--blue)">LAG 2</div>
+          <div class="lag-header" id="lag2Header" style="color:var(--blue)">LAG 2</div>
           <div class="lag-list" id="lag2List">
             <div style="padding:10px 16px;font-size:13px;color:var(--muted)">Ingen ännu</div>
           </div>
@@ -521,6 +522,7 @@ function updateQueue(){
 /* ══════════════════ HJULINDELNING ══════════════════ */
 let iPlayers=BAL_PLAYERS.map((p,i)=>({name:p.name,color:WCOLS[i%WCOLS.length]}));
 let iLag1=[],iLag2=[],iSpinning=false,iAngle=0,iSpinCount=0;
+let iTeamName1='LAG 1',iTeamName2='LAG 2';
 
 function drawIndelWheel(){drawWheelOnCanvas('indelCanvas',iPlayers,iAngle);}
 
@@ -562,6 +564,8 @@ function renderLagLists(){
   }
   document.getElementById('lag1List').innerHTML=listHTML(iLag1,'var(--accent)');
   document.getElementById('lag2List').innerHTML=listHTML(iLag2,'var(--blue)');
+  document.getElementById('lag1Header').textContent=iTeamName1;
+  document.getElementById('lag2Header').textContent=iTeamName2;
 }
 
 function showAnnouncement(playerName, lagNum, playerColor){
@@ -597,7 +601,19 @@ function indelSpin(){
     iAngle=a0+targetDelta;iSpinning=false;
     const winner=iPlayers[winnerPos];
     const lagNum=iSpinCount%2===0?1:2;
-    if(lagNum===1)iLag1.push(winner);else iLag2.push(winner);
+    if(lagNum===1){
+      iLag1.push(winner);
+      if(iLag1.length===1){
+        const t=PLAYER_TEXTS[winner.name];
+        if(t) iTeamName1='LAG '+t;
+      }
+    } else {
+      iLag2.push(winner);
+      if(iLag2.length===1){
+        const t=PLAYER_TEXTS[winner.name];
+        if(t) iTeamName2='LAG '+t;
+      }
+    }
     iSpinCount++;
     iPlayers.splice(winnerPos,1);
     iAngle=0;
@@ -688,15 +704,42 @@ function showIndelModal(){
         <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:#E8EAF0">${p.name}</span>
       </div>`).join('');
     return`<div style="background:#1A2133;border-radius:10px;overflow:hidden;box-shadow:inset 0 2px 0 ${col}">
-      <div style="padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:1px;color:${col};text-transform:uppercase;border-bottom:1px solid #252D3D">${label}</div>
+      <div style="padding:8px 12px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:0;color:${col};text-transform:uppercase;border-bottom:1px solid #252D3D;min-height:44px;display:flex;align-items:center;line-height:1.2">${label}</div>
       <div style="padding:4px 14px 8px">${rows}</div>
     </div>`;
   }
   document.getElementById('indelFinalTeams').innerHTML=
-    lagHTML(iLag1,'LAG 1','#FF6B00')+lagHTML(iLag2,'LAG 2','#0099FF');
+    lagHTML(iLag1,iTeamName1,'#FF6B00')+lagHTML(iLag2,iTeamName2,'#0099FF');
   document.getElementById('indelModal').style.display='flex';
 }
 
+
+function resetMumsWheelFull(){
+  wPlayers=[
+    {name:'Samme'},{name:'Jensa'},{name:'Steffo'},{name:'Fjunken'},
+    {name:'Kalle'},{name:'Errion'},{name:'JKLR'}
+  ].map((p,i)=>({...p,color:WCOLS[i%WCOLS.length]}));
+  wPicked=[];wSpinning=false;wAngle=0;
+  document.getElementById('spinBtn').disabled=false;
+  document.getElementById('spinsLeft').textContent=wPlayers.length+' snurr kvar';
+  document.getElementById('queueList').innerHTML='<div style="padding:10px 16px;font-size:13px;color:var(--muted)">Ingen har snurrats ännu</div>';
+  renderWheelNames();drawWheel();
+}
+
+function resetIndelningFull(){
+  iPlayers=BAL_PLAYERS.map((p,i)=>({name:p.name,color:WCOLS[i%WCOLS.length]}));
+  iLag1=[];iLag2=[];iSpinning=false;iAngle=0;iSpinCount=0;
+  iTeamName1='LAG 1';iTeamName2='LAG 2';
+  document.getElementById('indelSpinBtn').disabled=false;
+  document.getElementById('indelSpinsLeft').textContent='10 spelare kvar';
+  document.getElementById('lag1Header').textContent='LAG 1';
+  document.getElementById('lag2Header').textContent='LAG 2';
+  document.getElementById('lag1List').innerHTML='<div style="padding:10px 16px;font-size:13px;color:var(--muted)">Ingen ännu</div>';
+  document.getElementById('lag2List').innerHTML='<div style="padding:10px 16px;font-size:13px;color:var(--muted)">Ingen ännu</div>';
+  document.getElementById('indelNästa').innerHTML='Nästa spelare → <strong style="color:var(--accent)">LAG 1</strong>';
+  document.getElementById('indelModal').style.display='none';
+  renderIndelNames();drawIndelWheel();
+}
 /* ══════════════════ INIT ══════════════════ */
 renderPlayers();
 renderWheelNames();
