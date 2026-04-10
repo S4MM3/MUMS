@@ -495,6 +495,7 @@ function spin(){
     wAngle=0;drawWheel();updateQueue();
     document.getElementById('spinsLeft').textContent=wPlayers.length>0?wPlayers.length+' snurr kvar':'Alla har snurrats!';
     renderWheelNames();
+    showWheelAnnouncement(winner.name, winner.color, wPicked.length);
     if(wPlayers.length>0)document.getElementById('spinBtn').disabled=false;
     else setTimeout(()=>{launchFireworks();showFinalModal();},300);
   }
@@ -739,6 +740,20 @@ function resetIndelningFull(){
   document.getElementById('indelNästa').innerHTML='Nästa spelare → <strong style="color:var(--accent)">LAG 1</strong>';
   document.getElementById('indelModal').style.display='none';
   renderIndelNames();drawIndelWheel();
+}
+
+function showWheelAnnouncement(playerName, playerColor, num){
+  document.getElementById('annMain').textContent = `${num} = ${playerName}`;
+  document.getElementById('annMain').style.color = playerColor || 'var(--text)';
+  document.getElementById('annSub').textContent = '';
+  document.getElementById('annTeam').textContent = '';
+  const el = document.getElementById('announcement');
+  el.style.display = 'flex';
+  const inner = el.querySelector('.ann-inner');
+  inner.style.animation = 'none';
+  void inner.offsetWidth;
+  inner.style.animation = 'annPop .3s cubic-bezier(.34,1.56,.64,1) both';
+  setTimeout(() => { el.style.display = 'none'; }, 2500);
 }
 /* ══════════════════ INIT ══════════════════ */
 renderPlayers();
