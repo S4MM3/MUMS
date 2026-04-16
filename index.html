@@ -277,7 +277,7 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
     <button class="btn-secondary" onclick="removePlayer()">− Ta bort sista</button>
   </div>
   <button onclick="fetchAndBalance()" id="fetchBtn" class="btn-primary">
-    ⚡ Uppdatera alla ELO och balansera lagen
+    <span style="color:#0D0F14">⚡</span> Uppdatera allas ELO och balansera lagen
   </button>
   <div id="fetchStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;margin-top:8px;margin-bottom:8px"></div>
   <div id="result" style="display:none">
@@ -387,8 +387,10 @@ function removePlayer(){if(BAL_PLAYERS.length>2){BAL_PLAYERS.pop();renderPlayers
 function* combos(arr,k){if(!k){yield[];return;}for(let i=0;i<=arr.length-k;i++)for(const r of combos(arr.slice(i+1),k-1))yield[arr[i],...r];}
 function getTeamName(ps,n){
   const nm=ps.map(p=>p.name.toLowerCase());
-  if(n===1&&nm.includes('gunnar'))return'TEAM ANNIKA SNYGG';
-  if(n===2&&nm.includes('kalle'))return'TEAM ANNIKA SEXY';
+  if(n===1&&nm.includes('samme'))return'TEAM ANNELIE WILD & CRAZY';
+  if(n===2&&nm.includes('samme'))return'TEAM GUNNILA MAKE IT RAIN ON MY TITS';
+  if(n===1&&nm.includes('gunnar'))return'TEAM ANNIKA UNG, OERFAREN & SNYGG';
+  if(n===2&&nm.includes('kalle'))return'TEAM ANNIKA RUTIN, HÅRT & SEXY';
   return'LAG '+n;
 }
 function balance(){
@@ -851,7 +853,7 @@ async function fetchAllElo(){
   }
   renderPlayers();
   renderRanking();
-  btn.disabled=false;btn.textContent='⚡ Uppdatera alla ELO och balansera lagen';
+  btn.disabled=false;btn.textContent='<span style="color:#0D0F14">⚡</span> Uppdatera allas ELO och balansera lagen';
   if(ok>0) balance();
   if(fail.length===0) setStatus(`✅ Uppdaterade ${ok} spelare!`,'var(--accent)');
   else setStatus(`✅ ${ok} ok  ⚠️ Misslyckades: ${fail.join(', ')}`, 'var(--yellow)');
@@ -895,7 +897,7 @@ async function fetchAndBalance(){
   localStorage.setItem('bal_players', JSON.stringify(BAL_PLAYERS.map(p=>({name:p.name,elo:p.elo,faceit:p.faceit}))));
   renderPlayers();
   btn.disabled=false;
-  btn.textContent='⚡ Uppdatera alla ELO och balansera lagen';
+  btn.textContent='<span style="color:#0D0F14">⚡</span> Uppdatera allas ELO och balansera lagen';
   balance();
 }
 /* ══════════════════ INIT ══════════════════ */
