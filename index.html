@@ -889,11 +889,30 @@ async function fetchAndBalance(){
   } else {
     setStatus('Ingen API-nyckel sparad — balanserar med befintliga ELO','var(--muted)');
   }
+  // Sort by ELO descending
+  BAL_PLAYERS.sort((a,b)=>b.elo-a.elo);
+  // Save to localStorage
+  localStorage.setItem('bal_players', JSON.stringify(BAL_PLAYERS.map(p=>({name:p.name,elo:p.elo,faceit:p.faceit}))));
+  renderPlayers();
   btn.disabled=false;
   btn.textContent='⚡ Uppdatera alla ELO och balansera lagen';
   balance();
 }
 /* ══════════════════ INIT ══════════════════ */
+// Restore saved ELO from last session
+(function(){
+  const saved = localStorage.getItem('bal_players');
+  if(saved){
+    try{
+      const data = JSON.parse(saved);
+      data.forEach(s => {
+        const p = BAL_PLAYERS.find(x => x.faceit === s.faceit || x.name === s.name);
+        if(p){ p.elo = s.elo; }
+      });
+      BAL_PLAYERS.sort((a,b)=>b.elo-a.elo);
+    }catch(e){}
+  }
+})();
 renderPlayers();
 renderWheelNames();
 drawWheel();
