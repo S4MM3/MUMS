@@ -277,7 +277,7 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
     <button class="btn-secondary" onclick="removePlayer()">− Ta bort sista</button>
   </div>
   <button onclick="fetchAndBalance()" id="fetchBtn" class="btn-primary">
-    <span style="color:#0D0F14">⚡</span> Uppdatera allas ELO och balansera lagen
+    ⚡ Uppdatera allas ELO och balansera lagen
   </button>
   <div id="fetchStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;margin-top:8px;margin-bottom:8px"></div>
   <div id="result" style="display:none">
@@ -387,10 +387,9 @@ function removePlayer(){if(BAL_PLAYERS.length>2){BAL_PLAYERS.pop();renderPlayers
 function* combos(arr,k){if(!k){yield[];return;}for(let i=0;i<=arr.length-k;i++)for(const r of combos(arr.slice(i+1),k-1))yield[arr[i],...r];}
 function getTeamName(ps,n){
   const nm=ps.map(p=>p.name.toLowerCase());
-  if(n===1&&nm.includes('samme'))return'TEAM ANNELIE WILD & CRAZY';
-  if(n===2&&nm.includes('samme'))return'TEAM GUNNILA MAKE IT RAIN ON MY TITS';
-  if(n===1&&nm.includes('gunnar'))return'TEAM ANNIKA UNG, OERFAREN & SNYGG';
-  if(n===2&&nm.includes('kalle'))return'TEAM ANNIKA RUTIN, HÅRT & SEXY';
+  if(nm.includes('samme')) return n===1?'TEAM ANNELIE WILD & CRAZY':'TEAM GUNNILA MAKE IT RAIN ON MY TITS';
+  if(nm.includes('gunnar')) return 'TEAM ANNIKA UNG, OERFAREN & SNYGG';
+  if(nm.includes('kalle'))  return 'TEAM ANNIKA RUTIN, HÅRT & SEXY';
   return'LAG '+n;
 }
 function balance(){
