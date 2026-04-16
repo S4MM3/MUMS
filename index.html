@@ -354,6 +354,19 @@ const BAL_PLAYERS=[
   {name:"Engvall",elo:1711, faceit:"BjornenSover"}
 ];
 
+const PLAYER_TEAM_NAMES={
+  "Samme":   {lag1:"TEAM ANNELIE WILD & CRAZY", lag2:"TEAM GUNNILA MAKE IT RAIN ON MY TITS"},
+  "Kalle":   {lag1:"TEAM ANNIKA RUTIN, HÅRT & SEXY", lag2:"TEAM ANNIKA RUTIN, HÅRT & SEXY"},
+  "Gunnar":  {lag1:"TEAM ANNIKA UNG, OERFAREN & SNYGG", lag2:"TEAM ANNIKA UNG, OERFAREN & SNYGG"},
+  "Errion":  {lag1:"TEAM GUNNILA MAKE IT RAIN BABY", lag2:"TEAM GUNNILA MAKE IT RAIN BABY"},
+  "JKLR":    {lag1:"TEAM ANNA OH YEEE", lag2:"TEAM ANNA OH YEEE"},
+  "Jensa":   {lag1:"TEAM KARIN EVERY DAY", lag2:"TEAM KARIN EVERY DAY"},
+  "Poddig":  {lag1:"TEAM PETRA GANG LOVER", lag2:"TEAM PETRA GANG LOVER"},
+  "Engvall": {lag1:"TEAM SANDRA STRIPP", lag2:"TEAM SANDRA STRIPP"},
+  "Fjunken": {lag1:"TEAM KINA DEEP", lag2:"TEAM KINA DEEP"},
+  "Steffo":  {lag1:"TEAM ÅGNETA I HUSABILA", lag2:"TEAM ÅGNETA I HUSABILA"},
+};
+
 const PLAYER_TEXTS={
   "Errion":"GUNILLA MONEY SEX",
   "JKLR":"ANNA OH YEEE",
@@ -386,11 +399,12 @@ function addPlayer(){BAL_PLAYERS.push({name:'Spelare',elo:2000});renderPlayers()
 function removePlayer(){if(BAL_PLAYERS.length>2){BAL_PLAYERS.pop();renderPlayers();}}
 function* combos(arr,k){if(!k){yield[];return;}for(let i=0;i<=arr.length-k;i++)for(const r of combos(arr.slice(i+1),k-1))yield[arr[i],...r];}
 function getTeamName(ps,n){
-  const nm=ps.map(p=>p.name.toLowerCase());
-  if(nm.includes('samme')) return n===1?'TEAM ANNELIE WILD & CRAZY':'TEAM GUNNILA MAKE IT RAIN ON MY TITS';
-  if(nm.includes('gunnar')) return 'TEAM ANNIKA UNG, OERFAREN & SNYGG';
-  if(nm.includes('kalle'))  return 'TEAM ANNIKA RUTIN, HÅRT & SEXY';
-  return'LAG '+n;
+  // Find highest ELO player in this team
+  const top=[...ps].sort((a,b)=>b.elo-a.elo)[0];
+  if(!top) return 'LAG '+n;
+  const entry=PLAYER_TEAM_NAMES[top.name];
+  if(entry) return n===1?entry.lag1:entry.lag2;
+  return 'LAG '+n;
 }
 function balance(){
   const pl=BAL_PLAYERS.map(p=>({...p}));
@@ -825,7 +839,7 @@ async function fetchAllElo(){
   const key=document.getElementById('faceitApiKey').value.trim();
   if(!key){setStatus('Ange API-nyckel först','var(--red)');return;}
   const btn=document.getElementById('fetchBtn');
-  btn.disabled=true;btn.textContent='Hämtar...';
+  btn.disabled=true;btn.innerHTML='Hämtar...';
   let ok=0,fail=[];
   for(let i=0;i<BAL_PLAYERS.length;i++){
     const p=BAL_PLAYERS[i];
@@ -852,7 +866,7 @@ async function fetchAllElo(){
   }
   renderPlayers();
   renderRanking();
-  btn.disabled=false;btn.textContent='<span style="color:#0D0F14">⚡</span> Uppdatera allas ELO och balansera lagen';
+  btn.disabled=false;btn.innerHTML='⚡ Uppdatera allas ELO och balansera lagen';
   if(ok>0) balance();
   if(fail.length===0) setStatus(`✅ Uppdaterade ${ok} spelare!`,'var(--accent)');
   else setStatus(`✅ ${ok} ok  ⚠️ Misslyckades: ${fail.join(', ')}`, 'var(--yellow)');
@@ -868,7 +882,7 @@ async function fetchAndBalance(){
   const btn=document.getElementById('fetchBtn');
   btn.disabled=true;
   if(key){
-    btn.textContent='Hämtar ELO...';
+    btn.innerHTML='Hämtar ELO...';
     let ok=0,fail=[];
     for(let i=0;i<BAL_PLAYERS.length;i++){
       const p=BAL_PLAYERS[i];
@@ -896,7 +910,7 @@ async function fetchAndBalance(){
   localStorage.setItem('bal_players', JSON.stringify(BAL_PLAYERS.map(p=>({name:p.name,elo:p.elo,faceit:p.faceit}))));
   renderPlayers();
   btn.disabled=false;
-  btn.textContent='<span style="color:#0D0F14">⚡</span> Uppdatera allas ELO och balansera lagen';
+  btn.innerHTML='⚡ Uppdatera allas ELO och balansera lagen';
   balance();
 }
 /* ══════════════════ INIT ══════════════════ */
