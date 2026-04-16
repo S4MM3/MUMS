@@ -64,7 +64,7 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 .btn-primary:hover{filter:brightness(1.1)}.btn-primary:active{transform:scale(.99)}
 
 /* BALANCE RESULT */
-.result{display:none}.result.visible{display:block}
+.result{display:block}
 .teams-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .team-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .team-header{padding:10px 14px 8px;border-bottom:1px solid var(--border);
@@ -270,40 +270,18 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 
 <!-- ══ BALANSERA LAG ══ -->
 <div class="page" id="pageBalance">
-
-  <!-- Faceit panel -->
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:18px">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--orange);letter-spacing:1px;margin-bottom:10px">FACEIT AUTO-ELO</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">API-nyckel från developers.faceit.com — sparas i webbläsaren</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <input id="faceitApiKey" type="password" placeholder="Klistra in API-nyckel här..."
-        style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:8px 12px;border-radius:7px;outline:none"
-        oninput="localStorage.setItem('faceitKey',this.value)">
-      <button class="btn-secondary" onclick="document.getElementById('faceitApiKey').type==='password'?document.getElementById('faceitApiKey').type='text':document.getElementById('faceitApiKey').type='password'" style="flex-shrink:0;padding:8px 12px">👁</button>
-    </div>
-    <div id="faceitNames" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px"></div>
-    <button onclick="fetchAllElo()" id="fetchBtn"
-      style="width:100%;background:var(--orange);color:#0D0F14;border:none;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px;border-radius:8px;cursor:pointer">
-      ⚡ Hämta ELO från Faceit
-    </button>
-    <div id="fetchStatus" style="font-size:12px;color:var(--muted);margin-top:8px;min-height:16px;text-align:center"></div>
-  </div>
-
-  <!-- Ranking -->
-  <div style="margin-bottom:18px">
-    <div class="section-label" style="margin-bottom:12px">Ranking</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="rankingGrid"></div>
-  </div>
-
   <div class="section-label">Spelare &amp; Elo</div>
   <div class="players-grid" id="playersGrid"></div>
   <div class="player-actions">
     <button class="btn-secondary" onclick="addPlayer()">+ Lägg till spelare</button>
     <button class="btn-secondary" onclick="removePlayer()">− Ta bort sista</button>
   </div>
-  <button class="btn-primary" onclick="balance()">⚡ Balansera lag</button>
-  <div class="result" id="result">
-    <div class="section-label">Bästa uppdelningen</div>
+  <button onclick="fetchAndBalance()" id="fetchBtn" class="btn-primary">
+    ⚡ Uppdatera alla ELO och balansera lagen
+  </button>
+  <div id="fetchStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;margin-top:8px;margin-bottom:8px"></div>
+  <div id="result" style="display:none">
+    <div class="section-label" style="margin-top:16px">Bästa uppdelningen</div>
     <div class="teams-grid" id="teamsGrid"></div>
     <div class="diff-bar">
       <div class="diff-left">
@@ -365,15 +343,15 @@ function showPage(id){
 /* ══════════════════ SHARED DATA ══════════════════ */
 const BAL_PLAYERS=[
   {name:"Samme",  elo:2183, faceit:"Samuelsson"},
-  {name:"Kalle",  elo:3025, faceit:"Kalle"},
-  {name:"Errion", elo:2122, faceit:"Errion"},
-  {name:"JKLR",   elo:1755, faceit:"JKLR"},
-  {name:"Fjunken",elo:1665, faceit:"Fjunken"},
+  {name:"Kalle",  elo:3025, faceit:"PeterPilot"},
+  {name:"Errion", elo:2122, faceit:"eri66on"},
+  {name:"JKLR",   elo:1755, faceit:"Balrogbobby"},
+  {name:"Fjunken",elo:1665, faceit:"Fjunkmaestro"},
   {name:"Jensa",  elo:1975, faceit:"jenszc"},
-  {name:"Gunnar", elo:2338, faceit:"Gunnar"},
-  {name:"Poddig", elo:1901, faceit:"Poddig"},
-  {name:"Steffo", elo:1958, faceit:"Steffo"},
-  {name:"Engvall",elo:1711, faceit:"Engvall"}
+  {name:"Gunnar", elo:2338, faceit:"Gunnaarr"},
+  {name:"Poddig", elo:1901, faceit:"Poddzki"},
+  {name:"Steffo", elo:1958, faceit:"SaintSander"},
+  {name:"Engvall",elo:1711, faceit:"BjornenSover"}
 ];
 
 const PLAYER_TEXTS={
@@ -427,8 +405,8 @@ function balance(){
   document.getElementById('teamsGrid').innerHTML=tHTML(getTeamName(t1,1),t1,'accent','team-t1')+tHTML(getTeamName(t2,2),t2,'blue','team-t2');
   document.getElementById('diffVal').textContent=bd.toLocaleString('sv-SE')+' elo';
   document.getElementById('diffSub').textContent='≈ '+Math.round(bd/half)+' elo per spelare';
-  const r=document.getElementById('result');r.classList.add('visible');
-  r.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function tHTML(lbl,ps,cv,cls){
   const tot=ps.reduce((s,p)=>s+p.elo,0),col=cv==='accent'?'var(--accent)':'var(--blue)';
@@ -804,9 +782,10 @@ function showWheelAnnouncement(playerName, playerColor, num){
 /* ══════════════════ FACEIT ══════════════════ */
 window.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('faceitKey');
-  if(saved) document.getElementById('faceitApiKey').value=saved;
-  renderFaceitNames();
-  renderRanking();
+  const hid=document.getElementById('faceitApiKey');
+  const vis=document.getElementById('faceitApiKeyVisible');
+  if(saved){if(hid)hid.value=saved;if(vis)vis.value=saved;}
+  if(vis) vis.addEventListener('input',()=>{localStorage.setItem('faceitKey',vis.value);if(hid)hid.value=vis.value;});
 });
 
 function renderFaceitNames(){
@@ -872,7 +851,8 @@ async function fetchAllElo(){
   }
   renderPlayers();
   renderRanking();
-  btn.disabled=false;btn.textContent='⚡ Hämta ELO från Faceit';
+  btn.disabled=false;btn.textContent='⚡ Uppdatera alla ELO och balansera lagen';
+  if(ok>0) balance();
   if(fail.length===0) setStatus(`✅ Uppdaterade ${ok} spelare!`,'var(--accent)');
   else setStatus(`✅ ${ok} ok  ⚠️ Misslyckades: ${fail.join(', ')}`, 'var(--yellow)');
 }
@@ -880,6 +860,38 @@ async function fetchAllElo(){
 function setStatus(msg,color){
   const el=document.getElementById('fetchStatus');
   if(el){el.textContent=msg;el.style.color=color;}
+}
+
+async function fetchAndBalance(){
+  const key='001e172e-7255-4545-b25d-47af65ffa171';
+  const btn=document.getElementById('fetchBtn');
+  btn.disabled=true;
+  if(key){
+    btn.textContent='Hämtar ELO...';
+    let ok=0,fail=[];
+    for(let i=0;i<BAL_PLAYERS.length;i++){
+      const p=BAL_PLAYERS[i];
+      const nick=(p.faceit||p.name).trim();
+      setStatus(`Hämtar ${nick}...`,'var(--muted)');
+      try{
+        const apiUrl=`https://open.faceit.com/data/v4/players?nickname=${encodeURIComponent(nick)}`;
+        const proxyUrl=`https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+        const res=await fetch(proxyUrl,{headers:{'Authorization':`Bearer ${key}`,'x-requested-with':'XMLHttpRequest'}});
+        if(!res.ok){fail.push(nick);continue;}
+        const data=await res.json();
+        const cs2=data?.games?.cs2?.faceit_elo||data?.games?.csgo?.faceit_elo;
+        if(cs2){BAL_PLAYERS[i].elo=cs2;ok++;}
+        else fail.push(nick+' (inget CS2)');
+      }catch(e){fail.push(nick);}
+    }
+    if(fail.length===0) setStatus(`✅ ${ok} spelare uppdaterade`,'var(--accent)');
+    else setStatus(`✅ ${ok} ok  ⚠️ ${fail.join(', ')}`, 'var(--yellow)');
+  } else {
+    setStatus('Ingen API-nyckel sparad — balanserar med befintliga ELO','var(--muted)');
+  }
+  btn.disabled=false;
+  btn.textContent='⚡ Uppdatera alla ELO och balansera lagen';
+  balance();
 }
 /* ══════════════════ INIT ══════════════════ */
 renderPlayers();
