@@ -180,9 +180,9 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
   color:var(--accent);font-variant-numeric:tabular-nums}
 
 /* ══ MATCH VETO ══ */
-.veto-maps{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;align-items:center}
-.map-card{position:relative;height:68px;border-radius:6px;overflow:hidden;cursor:pointer;
-  border:2px solid transparent;transition:border-color .15s;background-size:cover;background-position:center;background-repeat:no-repeat;width:500px;max-width:100%}
+.veto-maps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.map-card{position:relative;height:52px;border-radius:6px;overflow:hidden;cursor:pointer;
+  border:2px solid transparent;transition:border-color .15s;background-size:cover;background-position:center;background-repeat:no-repeat;width:100%}
 .map-card:hover.available{border-color:var(--accent);transform:scale(1.02)}
 .map-card .map-name{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
   color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.8);letter-spacing:1px;text-transform:uppercase;z-index:2;position:relative}
@@ -197,19 +197,16 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 .veto-status{background:var(--card);border:1px solid var(--border);border-radius:10px;
   padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px}
 .veto-turn{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px}
-.veto-timer{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;
-  color:var(--yellow);min-width:52px;text-align:right;font-variant-numeric:tabular-nums;margin-left:auto}
-.veto-timer.urgent{color:var(--red)}
 .veto-action-badge{padding:4px 12px;border-radius:4px;font-size:12px;font-weight:700;
   letter-spacing:1px;text-transform:uppercase}
 .badge-ban{background:rgba(255,91,91,.15);color:var(--red)}
 .badge-pick{background:rgba(255,107,0,.15);color:var(--orange)}
 .badge-side{background:rgba(0,153,255,.15);color:var(--blue)}
 .badge-decider{background:rgba(255,209,102,.15);color:var(--yellow)}
-.veto-log{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.veto-log{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;max-height:180px;overflow-y:auto}
 .veto-log-header{padding:10px 16px;border-bottom:1px solid var(--border);
   font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase}
-.veto-log-item{padding:9px 16px;border-bottom:1px solid var(--border);font-size:14px;display:flex;align-items:center;gap:10px}
+.veto-log-item{padding:6px 14px;border-bottom:1px solid var(--border);font-size:13px;display:flex;align-items:center;gap:8px}
 .veto-log-item:last-child{border-bottom:none}
 .veto-log-num{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--muted);min-width:20px}
 .side-btns{display:flex;gap:10px;margin-bottom:16px}
@@ -217,6 +214,10 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
   color:var(--text);font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
   letter-spacing:1px;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s}
 .side-btn:hover{border-color:var(--accent);background:var(--card2)}
+.ct-btn{border-color:#4A90D9;color:#4A90D9}
+.ct-btn:hover{background:rgba(74,144,217,.15)!important;border-color:#4A90D9!important}
+.t-btn{border-color:#FF6B00;color:#FF6B00}
+.t-btn:hover{background:rgba(255,107,0,.15)!important;border-color:#FF6B00!important}
 .veto-ready-screen{text-align:center;padding:40px 20px}
 .team-name-input{background:var(--card2);border:1px solid var(--border);color:var(--text);
   font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;padding:12px 16px;
@@ -394,7 +395,6 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
         <div class="veto-turn" id="vetoTurnLabel">—</div>
       </div>
       <span class="veto-action-badge" id="vetoActionBadge"></span>
-      <div class="veto-timer" id="vetoTimerDisplay">60</div>
     </div>
     <!-- Ready-up overlay: shown when waiting for team to confirm their turn -->
     <div id="vetoReadyOverlay" style="display:none;background:var(--card);border:2px solid var(--border);border-radius:10px;padding:20px;text-align:center;margin-bottom:14px">
@@ -406,11 +406,11 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
     </div>
 
     <!-- Side pick prompt -->
-    <div id="vetoSidePick" style="display:none">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--muted);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase" id="vetoSideLabel"></div>
+    <div id="vetoSidePick" style="display:none;background:var(--card);border:2px solid var(--blue);border-radius:10px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--muted);margin-bottom:10px;letter-spacing:1px" id="vetoSideLabel"></div>
       <div class="side-btns">
-        <button class="side-btn" onclick="pickSide('CT')">🛡 CT</button>
-        <button class="side-btn" onclick="pickSide('T')">🔪 T</button>
+        <button class="side-btn ct-btn" onclick="pickSide('CT')">🛡 CT</button>
+        <button class="side-btn t-btn" onclick="pickSide('T')">🔪 T</button>
       </div>
     </div>
 
@@ -515,10 +515,11 @@ function setVetoFormat(fmt){
   document.getElementById('fmtBo5').style.borderColor=fmt==='bo5'?'var(--blue)':'var(--border)';
 }
 
-let vetoStep=0, vetoTimer=null, vetoSeconds=60;
+let vetoStep=0;
 let vetoMaps=[], vetoLog=[], vetoTeam1='LAG 1', vetoTeam2='LAG 2';
 let vetoPendingSide=null;
 let vetoReady1=false, vetoReady2=false, vetoActingTeam=0;
+let vetoFirstReady=false;
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -573,6 +574,7 @@ function startVeto(){
   vetoMaps  = MAPS.filter(m=>vetoSelectedMaps.includes(m.name)).map(m=>({...m, state:'available', side:'', pickedBy:0}));
   vetoLog   = [];
   vetoStep  = 0;
+  vetoFirstReady = false;
   document.getElementById('vetoReady').style.display='none';
   document.getElementById('vetoActive').style.display='block';
   document.getElementById('vetoResult').style.display='none';
@@ -596,8 +598,7 @@ function runVetoStep(){
       vetoLog.push({num:vetoStep+1, text:`${left.name} var kvar (karta 3 — decider)`, color:'var(--yellow)'});
       renderVetoMaps();
       renderVetoLog();
-      stopTimer();
-      document.getElementById('vetoActive').style.display='none';
+          document.getElementById('vetoActive').style.display='none';
       showVetoResult();
     }
     return;
@@ -615,54 +616,25 @@ function runVetoStep(){
     badge.textContent='PICK';badge.className='veto-action-badge badge-pick';
   }
 
-  // Show ready-up overlay — lock maps until team confirms
+  // Show ready-up overlay only on first step
   vetoActingTeam = step.team;
-  const overlay = document.getElementById('vetoReadyOverlay');
-  const rlabel = document.getElementById('vetoReadyLabel');
-  const act = step.action === 'ban' ? 'BANNA' : 'PICKA';
-  rlabel.innerHTML = `<span style="color:${teamColor(step.team)}">${teamName(step.team)}</span> — tryck när ni är redo att ${act}`;
-  overlay.style.display='block';
-  document.getElementById('vetoConfirmBtn').style.background = step.team===1?'var(--accent)':'var(--blue)';
-  // Maps not clickable yet
-  renderVetoMaps(false);
+  if(!vetoFirstReady){
+    const overlay = document.getElementById('vetoReadyOverlay');
+    const rlabel = document.getElementById('vetoReadyLabel');
+    rlabel.innerHTML = `<span style="color:${teamColor(1)}">${teamName(1)}</span> & <span style="color:${teamColor(2)}">${teamName(2)}</span> — tryck när ni är redo att starta veton`;
+    overlay.style.display='block';
+    document.getElementById('vetoConfirmBtn').style.background = 'var(--accent)';
+    document.getElementById('vetoConfirmBtn').textContent = '⚔ KLAR — STARTA VETO';
+    renderVetoMaps(false);
+  } else {
+    renderVetoMaps(true);
+  }
 }
 
 function confirmVetoTurn(){
   document.getElementById('vetoReadyOverlay').style.display='none';
-  // Now make maps clickable and start timer
+  vetoFirstReady = true;
   renderVetoMaps(true);
-  startTimer();
-}
-
-function startTimer(){
-  stopTimer();
-  vetoSeconds=60;
-  updateTimerDisplay();
-  vetoTimer=setInterval(()=>{
-    vetoSeconds--;
-    updateTimerDisplay();
-    if(vetoSeconds<=0){
-      // Auto-pick random available map
-      autoVetoAction();
-    }
-  },1000);
-}
-
-function stopTimer(){
-  if(vetoTimer){clearInterval(vetoTimer);vetoTimer=null;}
-}
-
-function updateTimerDisplay(){
-  const el=document.getElementById('vetoTimerDisplay');
-  el.textContent=vetoSeconds;
-  el.className='veto-timer'+(vetoSeconds<=10?' urgent':'');
-}
-
-function autoVetoAction(){
-  const available=vetoMaps.filter(m=>m.state==='available');
-  if(!available.length) return;
-  const map=available[Math.floor(Math.random()*available.length)];
-  selectMap(map.name);
 }
 
 function selectMap(mapName){
@@ -672,7 +644,6 @@ function selectMap(mapName){
   const map=vetoMaps.find(m=>m.name===mapName);
   if(!map||map.state!=='available') return;
 
-  stopTimer();
 
   if(step.action==='ban'){
     map.state='banned';
@@ -685,12 +656,13 @@ function selectMap(mapName){
     // Pick — now ask opponent for side
     map.state='picked-'+step.team;
     map.pickedBy=step.team;
-    vetoLog.push({num:vetoStep+1, text:`${teamName(step.team)} pickade ${mapName}`, color:teamColor(step.team)});
+    vetoLog.push({num:vetoStep+1, text:`${teamName(step.team)} pickade ${mapName}`, color:teamColor(step.team), pickMap:mapName, sideHtml:''});
     renderVetoMaps();
     renderVetoLog();
 
     const choosingTeam = step.team===1?2:1;
     vetoPendingSide={mapName, pickingTeam:step.team, choosingTeam};
+    renderVetoMaps(false); // lock maps while choosing side
     document.getElementById('vetoSidePick').style.display='block';
     document.getElementById('vetoSideLabel').innerHTML=
       `<span style="color:${teamColor(choosingTeam)};font-size:20px;font-weight:700">${teamName(choosingTeam)}</span> väljer sida på <strong>${mapName}</strong>`;
@@ -698,21 +670,23 @@ function selectMap(mapName){
     document.getElementById('vetoActionBadge').className='veto-action-badge badge-side';
     document.getElementById('vetoTurnLabel').textContent=teamName(choosingTeam);
     document.getElementById('vetoTurnLabel').style.color=teamColor(choosingTeam);
-    startTimer();
-  }
+    }
 }
 
 function pickSide(side){
   if(!vetoPendingSide) return;
-  stopTimer();
   const {mapName, pickingTeam, choosingTeam}=vetoPendingSide;
   const map=vetoMaps.find(m=>m.name===mapName);
   if(map) map.side=side;
-  vetoLog.push({num:vetoLog.length+1, text:`${teamName(choosingTeam)} väljer ${side} på ${mapName}`, color:teamColor(choosingTeam)});
+  // Append side to the existing pick log entry (same row)
+  const pickEntry=vetoLog.find(l=>l.pickMap===mapName);
+  if(pickEntry){
+    const sideEmoji=side==='CT'?'🛡':'🔪';
+    pickEntry.sideHtml=` · <span style="color:${teamColor(choosingTeam)}">${teamName(choosingTeam)} ${sideEmoji} ${side}</span>`;
+  }
   vetoPendingSide=null;
   document.getElementById('vetoSidePick').style.display='none';
   renderVetoLog();
-  const step=VETO_STEPS[vetoStep];
   vetoStep++;
   setTimeout(()=>runVetoStep(),400);
 }
@@ -750,7 +724,7 @@ function renderVetoLog(){
   items.innerHTML=vetoLog.map(l=>`
     <div class="veto-log-item">
       <span class="veto-log-num">${l.num}.</span>
-      <span style="color:${l.color};font-weight:500">${l.text}</span>
+      <span style="color:${l.color};font-weight:500">${l.text}</span>${l.sideHtml||''}
     </div>`).join('');
 }
 
@@ -766,16 +740,17 @@ function showVetoResult(){
   const mapCard=(m,num,isDecider)=>{
     const t=m.pickedBy;
     const col=isDecider?'#FFD166':(t===1?'#FF6B00':'#0099FF');
-    const bgCol=MAP_COLORS[m.name]||'#333';
-    return `<div style="background:var(--card);border:1px solid ${col};border-radius:10px;overflow:hidden;margin-bottom:10px">
-      <div style="background:${bgCol};height:60px;display:flex;align-items:center;justify-content:center;position:relative">
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,.4)"></div>
-        <span style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.8);z-index:1;letter-spacing:1px">${m.name}</span>
+    const imgStyle=m.img?`background-image:url(${m.img});background-size:cover;background-position:center`:`background:${MAP_COLORS[m.name]||'#333'}`;
+    const sideEmoji=m.side==='CT'?'🛡':'🔪';
+    const label=isDecider
+      ? `DECIDER`
+      : `Karta ${num} · <strong style="color:${col}">${teamName(t)}</strong>${m.side?` · <span style="color:${col}">${sideEmoji} ${m.side}</span>`:''}`;
+    return `<div style="background:var(--card);border:2px solid ${col};border-radius:10px;overflow:hidden;margin-bottom:10px">
+      <div style="${imgStyle};height:68px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding-right:14px">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.35)"></div>
+        <span style="position:relative;font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.9);letter-spacing:2px;z-index:1">${m.name.toUpperCase()}</span>
       </div>
-      <div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:var(--muted)">${isDecider?'Decider · Karta 3':`Karta ${num} · Pickad av <strong style="color:${col}">${teamName(t)}</strong>`}</span>
-        ${m.side?`<span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:${col}">${m.side === 'CT'?'🛡 CT':'🔪 T'}</span>`:''}
-      </div>
+      <div style="padding:8px 14px;font-size:13px;color:var(--muted)">${label}</div>
     </div>`;
   };
 
@@ -785,14 +760,13 @@ function showVetoResult(){
   content+='</div>';
 
   content+=`<div class="veto-log"><div class="veto-log-header">Komplett veto-log</div>
-    <div>${vetoLog.map(l=>`<div class="veto-log-item"><span class="veto-log-num">${l.num}.</span><span style="color:${l.color};font-weight:500">${l.text}</span></div>`).join('')}</div>
+    <div>${vetoLog.map(l=>`<div class="veto-log-item"><span class="veto-log-num">${l.num}.</span><span style="color:${l.color};font-weight:500">${l.text}</span>${l.sideHtml||''}</div>`).join('')}</div>
   </div>`;
 
   document.getElementById('vetoResultContent').innerHTML=content;
 }
 
 function resetVeto(){
-  stopTimer();
   vetoPendingSide=null;
   vetoFormat='bo3';
   setVetoFormat('bo3');
