@@ -393,10 +393,10 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
         <button onclick="copyLobbyLink('lobbyLink2')" style="background:var(--blue);color:#0D0F14;border:none;padding:11px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:18px">📋</button>
       </div>
 
-      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Spectator</div>
+      <div style="font-size:13px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">👁 SPECTATOR LÄNK</div>
       <div style="display:flex;gap:8px">
-        <input id="lobbyLink0" readonly style="flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:12px;font-family:monospace">
-        <button onclick="copyLobbyLink('lobbyLink0')" style="background:var(--card2);color:var(--text);border:1px solid var(--border);padding:9px 14px;border-radius:6px;font-weight:700;cursor:pointer;font-size:16px">📋</button>
+        <input id="lobbyLink0" readonly style="flex:1;background:var(--card2);border:2px solid var(--muted);color:var(--text);padding:11px 12px;border-radius:6px;font-size:12px;font-family:monospace">
+        <button onclick="copyLobbyLink('lobbyLink0')" style="background:var(--card2);color:var(--text);border:2px solid var(--muted);padding:11px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:18px">📋</button>
       </div>
     </div>
 
@@ -1009,7 +1009,7 @@ async function createOnlineRoom(){
     format:vetoFormat, team1:t1, team2:t2,
     selectedMaps:vetoSelectedMaps,
     status:'lobby', step:0,
-    maps:mapsObj, log:{}, pendingSide:null, firstReady:false,
+    maps:mapsObj, log:{}, pendingSide:null, firstReady:false, ready1:false, ready2:false,
     created:Date.now()
   });
   // Show links
@@ -1037,10 +1037,14 @@ function startMpListener(){
 }
 
 function applyRoomState(d){
-  vetoTeam1=d.team1; vetoTeam2=d.team2; vetoFormat=d.format;
+  // Sync state
+  vetoTeam1=d.team1||'LAG 1'; vetoTeam2=d.team2||'LAG 2'; vetoFormat=d.format||'bo3';
   const selMaps=d.selectedMaps||[];
   VETO_STEPS=getVetoSteps(selMaps.length,d.format);
-  vetoStep=d.step||0; vetoFirstReady=d.firstReady||false;
+  vetoStep=d.step||0;
+  // firstReady: both teams must have confirmed
+  const r1=d.ready1||false, r2=d.ready2||false;
+  vetoFirstReady=(r1&&r2)||d.firstReady||false;
   vetoMaps=selMaps.map(n=>{
     const base=MAPS.find(x=>x.name===n)||{name:n,img:'',color:'#333'};
     const fm=(d.maps&&d.maps[n])||{state:'available',side:'',pickedBy:0};
@@ -1050,7 +1054,7 @@ function applyRoomState(d){
   vetoPendingSide=d.pendingSide||null;
 
   ['vetoReady','vetoLobbyLinks','vetoJoining','vetoActive','vetoResult'].forEach(id=>{
-    document.getElementById(id).style.display='none';
+    const el=document.getElementById(id); if(el) el.style.display='none';
   });
 
   if(d.status==='lobby'){
@@ -1060,91 +1064,93 @@ function applyRoomState(d){
       document.getElementById('joiningStatus').textContent=`Du är ${mpMyTeam===0?'Spectator':'LAG '+mpMyTeam} — väntar på att veton startar...`;
       document.getElementById('joiningRoom').textContent='Rum: '+mpRoomId;
     }
-  } else if(d.status==='active'){
-    document.getElementById('vetoActive').style.display='block';
-    mpRenderActive();
-  } else if(d.status==='done'){
-    document.getElementById('vetoResult').style.display='block';
-    showVetoResult();
+    return;
   }
-}
+  if(d.status==='done'){
+    document.getElementById('vetoResult').style.display='block';
+    showVetoResult(); return;
+  }
 
-function mpRenderActive(){
+  // Active veto
+  document.getElementById('vetoActive').style.display='block';
   const step=VETO_STEPS[vetoStep];
-  const label=document.getElementById('vetoTurnLabel');
-  const badge=document.getElementById('vetoActionBadge');
   const overlay=document.getElementById('vetoReadyOverlay');
   const confirmBtn=document.getElementById('vetoConfirmBtn');
   const sidePick=document.getElementById('vetoSidePick');
-  const ind=document.getElementById('mpTeamIndicator');
 
-  // Team/turn indicator
+  // Team indicator
+  const ind=document.getElementById('mpTeamIndicator');
   if(ind){
     ind.style.display='block';
     if(mpMode && mpMyTeam!==0){
       const acting=vetoPendingSide?vetoPendingSide.choosingTeam:(step?step.team:0);
       const myTurn=mpMyTeam===acting;
       ind.innerHTML=`Du är <span style="color:${teamColor(mpMyTeam)}">${teamName(mpMyTeam)}</span>`
-        +(myTurn?` <span style="color:var(--accent)">— DIN TUR</span>`:' — väntar...');
+        +(myTurn?` <span style="color:var(--accent)">— DIN TUR ✓</span>`:' — väntar...');
     } else if(!mpMode && step){
       const acting=vetoPendingSide?vetoPendingSide.choosingTeam:step.team;
       ind.innerHTML=`<span style="color:${teamColor(acting)}">${teamName(acting)}</span> — ${vetoPendingSide?'väljer sida':(step.action==='ban'?'bannar':'pickar')}`;
     }
   }
 
+  // ── READY PHASE ────────────────────────────────────────────────────────────
   if(!vetoFirstReady){
-    // Initial ready-up
-    label.textContent='—'; label.style.color='var(--text)';
-    badge.textContent=''; badge.className='veto-action-badge';
     overlay.style.display='block';
     confirmBtn.style.display='block';
-    confirmBtn.textContent='⚔ KLAR — STARTA VETO';
-    confirmBtn.style.background='var(--accent)';
-    document.getElementById('vetoReadyLabel').innerHTML=
-      `<span style="color:${teamColor(1)}">${teamName(1)}</span> & <span style="color:${teamColor(2)}">${teamName(2)}</span> — tryck när ni är redo att starta veton`;
+    confirmBtn.disabled=false;
+    confirmBtn.style.opacity='1';
     sidePick.style.display='none';
+    if(mpMode){
+      // Each team has their own ready button
+      const myReady=(mpMyTeam===1?r1:mpMyTeam===2?r2:false);
+      document.getElementById('vetoReadyLabel').innerHTML=
+        `<div style="margin-bottom:10px;font-size:16px">Båda lagen måste trycka redo</div>`+
+        `<span style="color:${teamColor(1)}">${teamName(1)} ${r1?'✅':' ⏳'}</span>`+
+        ` &nbsp;|&nbsp; `+
+        `<span style="color:${teamColor(2)}">${teamName(2)} ${r2?'✅':' ⏳'}</span>`;
+      if(myReady){
+        confirmBtn.textContent='✓ Redo — väntar på motståndaren...';
+        confirmBtn.disabled=true; confirmBtn.style.opacity='0.5';
+      } else {
+        confirmBtn.textContent=`✓ JAG ÄR REDO (${teamName(mpMyTeam)})`;
+        confirmBtn.style.background=teamColor(mpMyTeam);
+      }
+    } else {
+      // Local: one button for both
+      document.getElementById('vetoReadyLabel').innerHTML=
+        `<span style="color:${teamColor(1)}">${teamName(1)}</span> & <span style="color:${teamColor(2)}">${teamName(2)}</span> — tryck när ni är redo`;
+      confirmBtn.textContent='⚔ KLAR — STARTA VETO';
+      confirmBtn.style.background='var(--accent)';
+    }
     renderVetoMaps(false);
     renderVetoLog();
     return;
   }
 
   overlay.style.display='none';
-  confirmBtn.style.display='none';
 
+  // ── SIDE PICK ──────────────────────────────────────────────────────────────
   if(vetoPendingSide){
     const ct=vetoPendingSide.choosingTeam;
-    label.textContent=teamName(ct); label.style.color=teamColor(ct);
-    badge.textContent='VÄLJ SIDA'; badge.className='veto-action-badge badge-side';
-    // Always show side pick panel - buttons disabled for wrong team
     sidePick.style.display='block';
     document.getElementById('vetoSideLabel').innerHTML=
       `<span style="color:${teamColor(ct)};font-size:22px;font-weight:700">${teamName(ct)}</span> väljer sida på <strong style="color:#fff">${vetoPendingSide.mapName}</strong>`;
-    const canChoose=!mpMode||(mpMyTeam===ct);
-    // Style CT/T buttons: disabled if not your turn
+    const canChoose=(!mpMode)||(mpMyTeam===ct)||(mpMyTeam===0);
     document.querySelectorAll('.side-btn').forEach(b=>{
       b.style.opacity=canChoose?'1':'0.3';
       b.style.pointerEvents=canChoose?'auto':'none';
     });
-    if(!canChoose && mpMyTeam!==0){
-      overlay.style.display='block';
-      document.getElementById('vetoReadyLabel').innerHTML=
-        `Väntar på att <span style="color:${teamColor(ct)}">${teamName(ct)}</span> väljer sida...`;
-      confirmBtn.style.display='none';
-    }
     renderVetoMaps(false);
-  } else if(step){
-    label.textContent=teamName(step.team); label.style.color=teamColor(step.team);
-    badge.textContent=step.action==='ban'?'BAN':'PICK';
-    badge.className=`veto-action-badge badge-${step.action}`;
-    sidePick.style.display='none';
-    const canAct=!mpMode||mpMyTeam===step.team;
+    renderVetoLog();
+    return;
+  }
+
+  sidePick.style.display='none';
+
+  // ── BAN / PICK ─────────────────────────────────────────────────────────────
+  if(step){
+    const canAct=(!mpMode)||(mpMyTeam===step.team);
     renderVetoMaps(canAct);
-    if(!canAct && mpMyTeam!==0){
-      overlay.style.display='block';
-      document.getElementById('vetoReadyLabel').innerHTML=
-        `Väntar på att <span style="color:${teamColor(step.team)}">${teamName(step.team)}</span> ${step.action==='ban'?'bannar':'pickar'}...`;
-      confirmBtn.style.display='none';
-    }
   }
   renderVetoLog();
 }
@@ -1172,11 +1178,20 @@ function pushRoomState(extra={}){
 
 function confirmVetoTurn(){
   if(mpMode){
-    fbDb.ref('rooms/'+mpRoomId+'/firstReady').set(true);
+    // Each team marks themselves ready separately
+    const field='ready'+(mpMyTeam||1);
+    const update={}; update[field]=true;
+    fbDb.ref('rooms/'+mpRoomId).update(update);
   } else {
     document.getElementById('vetoReadyOverlay').style.display='none';
     vetoFirstReady=true;
     renderVetoMaps(true);
+    // Update indicator for local mode
+    const ind=document.getElementById('mpTeamIndicator');
+    if(ind && !mpMode){
+      const step=VETO_STEPS[vetoStep];
+      if(step){ ind.style.display='block'; ind.innerHTML=`<span style="color:${teamColor(step.team)}">${teamName(step.team)}</span> — ${step.action==='ban'?'bannar':'pickar'}`; }
+    }
   }
 }
 
