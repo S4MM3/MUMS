@@ -1198,14 +1198,29 @@ function checkMpUrl(){
   const room=params.get('room');
   const team=params.get('team');
   if(!room) return;
-  initFb();
+  // Set state FIRST before any async/Firebase calls
   mpRoomId=room; mpMyTeam=parseInt(team||'0'); mpMode=true;
+  // Show veto page immediately
   showPage('veto');
-  document.getElementById('vetoReady').style.display='none';
-  document.getElementById('vetoJoining').style.display='block';
-  document.getElementById('joiningStatus').textContent='Ansluter till rum '+room+'...';
-  document.getElementById('joiningRoom').textContent='Du är '+(mpMyTeam===0?'Spectator':'LAG '+mpMyTeam);
-  startMpListener();
+  ['vetoReady','vetoLobbyLinks','vetoActive','vetoResult'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const join=document.getElementById('vetoJoining');
+  if(join) join.style.display='block';
+  const st=document.getElementById('joiningStatus');
+  if(st) st.textContent='Ansluter till rum '+room+'...';
+  const jr=document.getElementById('joiningRoom');
+  if(jr) jr.textContent='Du är '+(mpMyTeam===0?'Spectator':'LAG '+mpMyTeam);
+  // Init Firebase after DOM is shown
+  setTimeout(()=>{
+    try{
+      initFb();
+      startMpListener();
+    } catch(e){
+      console.error('Firebase error:',e);
+      if(st) st.textContent='Kunde inte ansluta. Kontrollera länken.';
+    }
+  }, 0);
 }
 
 
@@ -1661,6 +1676,8 @@ drawWheel();
 drawIndelWheel();
 renderIndelNames();
 updateNästa();
+// Check for multiplayer URL params - runs last so all DOM is ready
+checkMpUrl();
 </script>
 </body>
 </html>
