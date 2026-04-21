@@ -393,10 +393,10 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
         <button onclick="copyLobbyLink('lobbyLink2')" style="background:var(--blue);color:#0D0F14;border:none;padding:11px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:18px">📋</button>
       </div>
 
-      <div style="font-size:13px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">👁 SPECTATOR LÄNK</div>
+      <div style="font-size:13px;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">👁 SPECTATOR LÄNK</div>
       <div style="display:flex;gap:8px">
-        <input id="lobbyLink0" readonly style="flex:1;background:var(--card2);border:2px solid var(--muted);color:var(--text);padding:11px 12px;border-radius:6px;font-size:12px;font-family:monospace">
-        <button onclick="copyLobbyLink('lobbyLink0')" style="background:var(--card2);color:var(--text);border:2px solid var(--muted);padding:11px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:18px">📋</button>
+        <input id="lobbyLink0" readonly style="flex:1;background:var(--card2);border:2px solid var(--accent);color:var(--text);padding:11px 12px;border-radius:6px;font-size:12px;font-family:monospace">
+        <button onclick="copyLobbyLink('lobbyLink0')" style="background:var(--accent);color:#0D0F14;border:none;padding:11px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:18px">📋</button>
       </div>
     </div>
 
@@ -698,15 +698,18 @@ function selectMap(mapName){
 
     const choosingTeam = step.team===1?2:1;
     vetoPendingSide={mapName, pickingTeam:step.team, choosingTeam};
-    renderVetoMaps(false); // lock maps while choosing side
-    document.getElementById('vetoSidePick').style.display='block';
-    document.getElementById('vetoSideLabel').innerHTML=
-      `<span style="color:${teamColor(choosingTeam)};font-size:20px;font-weight:700">${teamName(choosingTeam)}</span> väljer sida på <strong>${mapName}</strong>`;
-    document.getElementById('vetoActionBadge').textContent='VÄLJ SIDA';
-    document.getElementById('vetoActionBadge').className='veto-action-badge badge-side';
-    document.getElementById('vetoTurnLabel').textContent=teamName(choosingTeam);
-    document.getElementById('vetoTurnLabel').style.color=teamColor(choosingTeam);
+
+    if(mpMode){
+      // Write to Firebase → applyRoomState fires on ALL clients (including lag 2)
+      pushRoomState({step:vetoStep});
+    } else {
+      // Local mode: update DOM directly
+      renderVetoMaps(false);
+      document.getElementById('vetoSidePick').style.display='block';
+      document.getElementById('vetoSideLabel').innerHTML=
+        `<span style="color:${teamColor(choosingTeam)};font-size:22px;font-weight:700">${teamName(choosingTeam)}</span> väljer sida på <strong style="color:#fff">${mapName}</strong>`;
     }
+  }
 }
 
 function pickSide(side){
