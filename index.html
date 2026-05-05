@@ -23,14 +23,14 @@ body::before{content:'';position:fixed;inset:0;
 .container{position:relative;z-index:1;width:100%;max-width:860px}
 
 /* NAV */
-nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
-.nav-btn{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
+nav{display:flex;gap:2px;margin-bottom:36px;flex-wrap:nowrap;align-items:baseline;overflow-x:auto}
+.nav-btn{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;white-space:nowrap;
   letter-spacing:2px;text-transform:uppercase;background:none;border:none;
   cursor:pointer;padding:6px 0;color:var(--muted);border-bottom:3px solid transparent;
   transition:color .15s,border-color .15s}
 .nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
 .nav-btn:not(.active):hover{color:var(--text)}
-.nav-divider{font-family:'Rajdhani',sans-serif;font-size:26px;color:var(--border);
+.nav-divider{font-family:'Rajdhani',sans-serif;font-size:20px;color:var(--border);white-space:nowrap;
   align-self:center;padding:0 5px;user-select:none}
 .page{display:none}.page.active{display:block}
 
@@ -192,7 +192,11 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
 .map-card.banned .map-name{opacity:.35;text-decoration:line-through}
 .map-card.banned{cursor:not-allowed;border-color:var(--red)!important}
 .map-card.picked-1{border-color:var(--accent)!important}
+.map-card.picked-1 .map-overlay{background:rgba(0,0,0,.65)}
+.map-card.picked-1 .map-name{opacity:.45}
 .map-card.picked-2{border-color:var(--blue)!important}
+.map-card.picked-2 .map-overlay{background:rgba(0,0,0,.65)}
+.map-card.picked-2 .map-name{opacity:.45}
 .map-card.decider{border-color:var(--yellow)!important}
 .veto-status{background:var(--card);border:1px solid var(--border);border-radius:10px;
   padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px}
@@ -249,6 +253,8 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
   <button class="nav-btn"        id="navIndelning"  onclick="showPage('indelning')">HJULINDELNING</button>
   <span class="nav-divider">/</span>
   <button class="nav-btn"        id="navVeto"       onclick="showPage('veto')">MATCH VETO</button>
+  <span class="nav-divider">/</span>
+  <button class="nav-btn"        id="navHof"        onclick="showPage('hof')">MUMS HOF</button>
 </nav>
 
 <!-- ══ MUMSHJULET ══ -->
@@ -492,6 +498,11 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
   </div>
 </div>
 
+<div class="page" id="pageHof">
+  <div class="section-label" style="margin-bottom:20px">🏆 MUMS HALL OF FAME</div>
+  <div id="hofList" style="display:flex;flex-direction:column;gap:12px"></div>
+</div>
+
 <script>
 /* ══════════════════ NAV ══════════════════ */
 /* ══════════════════ MATCH VETO ══════════════════ */
@@ -558,6 +569,7 @@ function showPage(id){
   if(id==='wheel') drawWheel();
   if(id==='indelning'){ drawIndelWheel(); renderIndelNames(); }
   if(id==='veto'){ if(!vetoSelectedMaps.length){ vetoSelectedMaps=['Dust2','Anubis','Nuke','Mirage','Inferno','Ancient','Overpass']; } setVetoFormat(vetoFormat); renderMapSelect(); }
+  if(id==='hof'){ renderHof(); }
 }
 
 function renderMapSelect(){
@@ -1710,6 +1722,31 @@ async function fetchAndBalance(){
     }catch(e){}
   }
 })();
+
+/* ══════════════════ MUMS HOF ══════════════════ */
+const HOF_ENTRIES = [
+  { player:'Adam Poddig', achievement:'Knivad 2 rundor i rad', date:'9 April 2026', map:'Nuke', by:'Samme' },
+  { player:'Jens Engvall', achievement:'Knivad 2 gånger under samma karta', date:'16 April 2026', map:'Anubis', by:'Samme & Kalle' },
+];
+
+function renderHof(){
+  const el = document.getElementById('hofList');
+  if(!el) return;
+  el.innerHTML = HOF_ENTRIES.map((e,i) => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-items:center">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--accent);line-height:1">${i+1}</div>
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:var(--text);letter-spacing:.5px">${e.player}</div>
+        <div style="font-size:14px;color:var(--muted);margin-top:3px">${e.achievement}</div>
+        <div style="display:flex;gap:16px;margin-top:7px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--accent);font-weight:600">📅 ${e.date}</span>
+          <span style="font-size:12px;color:var(--blue);font-weight:600">🗺 ${e.map}</span>
+          <span style="font-size:12px;color:var(--muted);font-weight:600">✍ By ${e.by}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
 renderPlayers();
 renderWheelNames();
 drawWheel();
