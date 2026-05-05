@@ -33,6 +33,7 @@ nav{display:flex;gap:2px;margin-bottom:36px;flex-wrap:nowrap;align-items:baselin
 .nav-divider{font-family:'Rajdhani',sans-serif;font-size:20px;color:var(--border);white-space:nowrap;
   align-self:center;padding:0 5px;user-select:none}
 .page{display:none}.page.active{display:block}
+#pageHof.active{display:flex!important;flex-direction:column;align-items:center}
 
 /* SECTION LABEL */
 .section-label{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;
@@ -387,6 +388,27 @@ nav{display:flex;gap:2px;margin-bottom:36px;flex-wrap:nowrap;align-items:baselin
     </div>
   </div>
 
+  <!-- Team name screen -->
+  <div id="vetoTeamNames" style="display:none">
+    <div class="section-label" style="margin-bottom:24px">Välj lagnamn</div>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px">
+      <div>
+        <div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Lag 1</div>
+        <input class="team-name-input" id="vetoTeam1Name" placeholder="LAG 1" value="LAG 1"
+          style="font-size:20px;padding:14px 16px;width:100%;box-sizing:border-box;border-color:var(--accent)">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Lag 2</div>
+        <input class="team-name-input" id="vetoTeam2Name" placeholder="LAG 2" value="LAG 2"
+          style="font-size:20px;padding:14px 16px;width:100%;box-sizing:border-box;color:var(--blue);border-color:var(--blue)">
+      </div>
+    </div>
+    <button class="btn-primary" id="vetoStartFinalBtn" onclick="startVetoFinal()" style="font-size:22px;padding:18px">
+      ⚔ STARTA VETO
+    </button>
+  </div>
+  </div>
+
   <!-- Lobby links (host sees this after creating room) -->
   <div id="vetoLobbyLinks" style="display:none">
     <div class="section-label" style="margin-bottom:16px">🌐 Online Lobby</div>
@@ -463,6 +485,33 @@ nav{display:flex;gap:2px;margin-bottom:36px;flex-wrap:nowrap;align-items:baselin
     </div>
   </div>
 </div>
+
+<div class="page" id="pageHof">
+  <div class="section-label" style="margin-bottom:28px;font-size:32px">🏆 MUMS HALL OF FAME</div>
+  <div id="hofList" style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:680px">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 28px;text-align:center">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:8px">1</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--text);letter-spacing:.5px;margin-bottom:6px">Adam Poddig</div>
+      <div style="font-size:16px;color:var(--muted);margin-bottom:12px">Knivad 2 rundor i rad</div>
+      <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+        <span style="font-size:14px;color:var(--accent);font-weight:600">📅 9 April 2026</span>
+        <span style="font-size:14px;color:var(--blue);font-weight:600">🗺 Nuke</span>
+        <span style="font-size:14px;color:var(--muted);font-weight:600">✍ By Samme</span>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 28px;text-align:center">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:8px">2</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--text);letter-spacing:.5px;margin-bottom:6px">Jens Engvall</div>
+      <div style="font-size:16px;color:var(--muted);margin-bottom:12px">Knivad 2 gånger under samma karta</div>
+      <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+        <span style="font-size:14px;color:var(--accent);font-weight:600">📅 16 April 2026</span>
+        <span style="font-size:14px;color:var(--blue);font-weight:600">🗺 Anubis</span>
+        <span style="font-size:14px;color:var(--muted);font-weight:600">✍ By Samme & Kalle</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div
 </div><!-- /container -->
 
 <!-- ANNOUNCEMENT -->
@@ -496,12 +545,7 @@ nav{display:flex;gap:2px;margin-bottom:36px;flex-wrap:nowrap;align-items:baselin
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px" id="indelFinalTeams"></div>
     <button onclick="location.reload()" style="background:#FF6B00;color:#0D0F14;border:none;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:8px;cursor:pointer;width:100%">Kör igen</button>
   </div>
-</div>
-
-<div class="page" id="pageHof">
-  <div class="section-label" style="margin-bottom:20px">🏆 MUMS HALL OF FAME</div>
-  <div id="hofList" style="display:flex;flex-direction:column;gap:12px"></div>
-</div>
+>
 
 <script>
 /* ══════════════════ NAV ══════════════════ */
@@ -612,15 +656,26 @@ function toggleMapSelect(name){
   renderMapSelect();
 }
 
+let pendingOnline = false;
+
 function startVeto(){
-  vetoTeam1 = 'LAG 1';
-  vetoTeam2 = 'LAG 2';
+  // Show team name screen first
+  pendingOnline = false;
+  document.getElementById('vetoReady').style.display='none';
+  document.getElementById('vetoTeamNames').style.display='block';
+}
+
+function startVetoFinal(){
+  vetoTeam1 = (document.getElementById('vetoTeam1Name').value.trim()||'LAG 1').toUpperCase();
+  vetoTeam2 = (document.getElementById('vetoTeam2Name').value.trim()||'LAG 2').toUpperCase();
+  document.getElementById('vetoTeamNames').style.display='none';
+  if(pendingOnline){ _createOnlineRoomActual(); return; }
+  // Local veto
   VETO_STEPS = getVetoSteps(vetoSelectedMaps.length, vetoFormat);
   vetoMaps  = MAPS.filter(m=>vetoSelectedMaps.includes(m.name)).map(m=>({...m, state:'available', side:'', pickedBy:0}));
   vetoLog   = [];
   vetoStep  = 0;
-  vetoFirstReady = false;
-  document.getElementById('vetoReady').style.display='none';
+  vetoFirstReady = true;
   document.getElementById('vetoActive').style.display='block';
   document.getElementById('vetoResult').style.display='none';
   document.getElementById('vetoLog').style.display='none';
@@ -723,9 +778,13 @@ function selectMap(mapName){
     } else {
       // Local mode: update DOM directly
       renderVetoMaps(false);
+      document.getElementById('vetoReadyOverlay').style.display='none';
       document.getElementById('vetoSidePick').style.display='block';
       document.getElementById('vetoSideLabel').innerHTML=
         `<span style="color:${teamColor(choosingTeam)};font-size:22px;font-weight:700">${teamName(choosingTeam)}</span> väljer sida på <strong style="color:#fff">${mapName}</strong>`;
+      // Update indicator
+      const ind=document.getElementById('mpTeamIndicator');
+      if(ind){ ind.style.display='block'; ind.innerHTML=`<span style="color:${teamColor(choosingTeam)}">${teamName(choosingTeam)}</span> — väljer sida`; }
     }
   }
 }
@@ -813,7 +872,6 @@ function showVetoResult(){
     return `<div style="background:var(--card);border:2px solid ${col};border-radius:10px;overflow:hidden;margin-bottom:10px">
       <div style="${imgStyle};background-position:${MAP_POS[m.name]||'center center'};height:68px;filter:brightness(1);position:relative;display:flex;align-items:center;justify-content:center">
         <div style="position:absolute;inset:0;background:rgba(0,0,0,.3)"></div>
-        <span style="position:relative;font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.9);letter-spacing:2px;z-index:1;text-align:center">${m.name.toUpperCase()}</span>
       </div>
       <div style="padding:8px 14px;font-size:13px;color:var(--muted)">${label}</div>
     </div>`;
@@ -1052,10 +1110,16 @@ function copyLobbyLink(id){
   btn.textContent='✓'; setTimeout(()=>{btn.textContent=orig;},1500);
 }
 
-async function createOnlineRoom(){
+function createOnlineRoom(){
+  pendingOnline = true;
+  document.getElementById('vetoReady').style.display='none';
+  document.getElementById('vetoTeamNames').style.display='block';
+}
+
+async function _createOnlineRoomActual(){
   const db=initFb();
-  const t1='LAG 1';
-  const t2='LAG 2';
+  const t1=(document.getElementById('vetoTeam1Name')?.value.trim()||'LAG 1').toUpperCase();
+  const t2=(document.getElementById('vetoTeam2Name')?.value.trim()||'LAG 2').toUpperCase();
   if(vetoSelectedMaps.length<7||vetoSelectedMaps.length>10){alert('Välj 7–10 kartor!');return;}
   mpRoomId=genRoomId(); mpMyTeam=1; mpMode=true;
   const mapsObj={};
@@ -1739,16 +1803,14 @@ function renderHof(){
   const el = document.getElementById('hofList');
   if(!el) return;
   el.innerHTML = HOF_ENTRIES.map((e,i) => `
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-items:center">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--accent);line-height:1">${i+1}</div>
-      <div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:var(--text);letter-spacing:.5px">${e.player}</div>
-        <div style="font-size:14px;color:var(--muted);margin-top:3px">${e.achievement}</div>
-        <div style="display:flex;gap:16px;margin-top:7px;flex-wrap:wrap">
-          <span style="font-size:12px;color:var(--accent);font-weight:600">📅 ${e.date}</span>
-          <span style="font-size:12px;color:var(--blue);font-weight:600">🗺 ${e.map}</span>
-          <span style="font-size:12px;color:var(--muted);font-weight:600">✍ By ${e.by}</span>
-        </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 28px;text-align:center">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:8px">${i+1}</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--text);letter-spacing:.5px;margin-bottom:6px">${e.player}</div>
+      <div style="font-size:16px;color:var(--muted);margin-bottom:12px">${e.achievement}</div>
+      <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+        <span style="font-size:14px;color:var(--accent);font-weight:600">📅 ${e.date}</span>
+        <span style="font-size:14px;color:var(--blue);font-weight:600">🗺 ${e.map}</span>
+        <span style="font-size:14px;color:var(--muted);font-weight:600">✍ By ${e.by}</span>
       </div>
     </div>`).join('');
 }
@@ -1758,6 +1820,7 @@ renderWheelNames();
 drawWheel();
 drawIndelWheel();
 renderIndelNames();
+renderHof();
 updateNästa();
 // Check for multiplayer URL params - runs last so all DOM is ready
 checkMpUrl();
