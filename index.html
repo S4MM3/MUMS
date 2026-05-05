@@ -181,8 +181,8 @@ nav{display:flex;gap:2px;margin-bottom:36px;flex-wrap:nowrap;align-items:baselin
 
 /* ══ MATCH VETO ══ */
 .veto-maps{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.map-card{position:relative;height:52px;border-radius:6px;overflow:hidden;cursor:pointer;
-  border:2px solid transparent;transition:border-color .15s;background-size:cover;background-position:center;background-repeat:no-repeat;width:100%}
+.map-card{position:relative;height:56px;border-radius:6px;overflow:hidden;cursor:pointer;
+  border:2px solid transparent;transition:border-color .15s;background-size:cover;background-position:center center;background-repeat:no-repeat;width:100%}
 .map-card:hover.available{border-color:var(--accent);transform:scale(1.02)}
 .map-card .map-name{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
   color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.8);letter-spacing:1px;text-transform:uppercase;z-index:2;position:relative}
@@ -523,6 +523,9 @@ const MAP_COLORS = {
   'Dust2':'#6B5533','Anubis':'#9B7A2A','Nuke':'#3B6A6A',
   'Mirage':'#7A5F96','Inferno':'#8B4220','Ancient':'#2A5A3C','Overpass':'#2A4B6A'
 };
+const MAP_POS = {
+  'Dust2':'70% 65%','Anubis':'50% 55%','Nuke':'50% 55%','Vertigo':'50% 65%'
+};
 
 let vetoFormat='bo3';
 let VETO_STEPS=[];
@@ -577,7 +580,7 @@ function renderMapSelect(){
   g.innerHTML = MAPS.map(m => {
     const sel = vetoSelectedMaps.includes(m.name);
     return `<div class="map-select-card ${sel?'selected':''}"
-      style="background-image:url(${m.img});background-color:${MAP_COLORS[m.name]||'#333'};filter:brightness(${sel?'1':'0.6'})"
+      style="background-image:url(${m.img});background-color:${MAP_COLORS[m.name]||'#333'};filter:brightness(${sel?'1':'0.6'});background-position:${MAP_POS[m.name]||'center center'}"
       onclick="toggleMapSelect('${m.name}')">
       <div style="position:absolute;inset:0;background:rgba(0,0,0,.25)"></div>
       <div class="map-check">✓</div>
@@ -767,10 +770,13 @@ function renderVetoMaps(active=true){
     }
     const available=active&&m.state==='available';
     const bgImg=m.img?`url(${m.img})`:``;
-    const brightness=m.state==='banned'?'brightness(0.22)':'brightness(1)';
+    const isBanned=m.state==='banned';
+    const isPicked=m.state.startsWith('picked');
+    const brightness=isBanned?'brightness(0.2)':isPicked?'brightness(0.35)':'brightness(1)';
+    const pos=MAP_POS[m.name]||'center center';
     return `<div class="${cls}" data-state="${m.state}"
       onclick="${available?`selectMap('${m.name}')`:''}"
-      style="cursor:${available?'pointer':'default'};background-image:${bgImg};background-size:cover;background-position:center;background-color:${MAP_COLORS[m.name]||'#222'};filter:${brightness}">
+      style="cursor:${available?'pointer':'default'};background-image:${bgImg};background-size:cover;background-position:${pos};background-color:${MAP_COLORS[m.name]||'#222'};filter:${brightness}">
       ${badge}
     </div>`;
   }).join('');
@@ -805,9 +811,9 @@ function showVetoResult(){
       ? `DECIDER`
       : `Karta ${num} · <strong style="color:${col}">${teamName(t)}</strong>${m.side?` · <span style="color:${col}">${sideEmoji} ${m.side}</span>`:''}`;
     return `<div style="background:var(--card);border:2px solid ${col};border-radius:10px;overflow:hidden;margin-bottom:10px">
-      <div style="${imgStyle};height:68px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding-right:14px">
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,.35)"></div>
-        <span style="position:relative;font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.9);letter-spacing:2px;z-index:1">${m.name.toUpperCase()}</span>
+      <div style="${imgStyle};background-position:${MAP_POS[m.name]||'center center'};height:68px;filter:brightness(1);position:relative;display:flex;align-items:center;justify-content:center">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.3)"></div>
+        <span style="position:relative;font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.9);letter-spacing:2px;z-index:1;text-align:center">${m.name.toUpperCase()}</span>
       </div>
       <div style="padding:8px 14px;font-size:13px;color:var(--muted)">${label}</div>
     </div>`;
