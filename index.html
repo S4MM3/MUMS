@@ -451,7 +451,10 @@ nav{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap}
   <div id="vetoResult" style="display:none">
     <div class="section-label" style="margin-bottom:16px">Veto Resultat</div>
     <div id="vetoResultContent"></div>
-    <button class="btn-primary" style="margin-top:16px" onclick="resetVeto()">Ny veto</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
+      <button class="btn-primary" onclick="resetVeto()">↺ Ny veto</button>
+      <button class="btn-primary" onclick="copyVetoToTS()" style="background:var(--card);border:1px solid var(--border);color:var(--text)">📋 Kopiera till TS</button>
+    </div>
   </div>
 </div>
 </div><!-- /container -->
@@ -622,7 +625,7 @@ function runVetoStep(){
     const left = vetoMaps.find(m=>m.state==='available');
     if(left){
       left.state='decider';
-      vetoLog.push({num:vetoStep+1, text:`${left.name} var kvar (karta 3 — decider)`, color:'var(--yellow)'});
+      vetoLog.push({num:vetoStep+1, text:`${left.name} was left over`, color:'var(--yellow)', pickMap:'', sideHtml:''});
       renderVetoMaps();
       renderVetoLog();
           document.getElementById('vetoActive').style.display='none';
@@ -681,7 +684,7 @@ function selectMap(mapName){
 
   if(step.action==='ban'){
     map.state='banned';
-    vetoLog.push({num:vetoStep+1, text:`${teamName(step.team)} bannades ${mapName}`, color:teamColor(step.team), pickMap:'', sideHtml:''});
+    vetoLog.push({num:vetoStep+1, text:`${teamName(step.team)} removed ${mapName}`, color:teamColor(step.team), pickMap:'', sideHtml:''});
     if(mpMode){
       pushRoomState({step:vetoStep+1});
     } else {
@@ -692,7 +695,7 @@ function selectMap(mapName){
     // Pick — now ask opponent for side
     map.state='picked-'+step.team;
     map.pickedBy=step.team;
-    vetoLog.push({num:vetoStep+1, text:`${teamName(step.team)} pickade ${mapName}`, color:teamColor(step.team), pickMap:mapName, sideHtml:''});
+    vetoLog.push({num:vetoStep+1, text:`${teamName(step.team)} picked ${mapName}`, color:teamColor(step.team), pickMap:mapName, sideHtml:''});
     renderVetoMaps();
     renderVetoLog();
 
@@ -810,6 +813,37 @@ function showVetoResult(){
   document.getElementById('vetoResultContent').innerHTML=content;
 }
 
+
+function copyVetoToTS(){
+  const lines = vetoLog.map(l => {
+    // Strip HTML from sideHtml to get plain text
+    let side = '';
+    if(l.sideHtml){
+      const tmp = document.createElement('div');
+      tmp.innerHTML = l.sideHtml;
+      side = tmp.textContent;
+    }
+    return `${l.num}. ${l.text}${side}`;
+  });
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Kopierat!';
+    btn.style.color = 'var(--accent)';
+    setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; }, 2000);
+  }).catch(()=>{
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = event.target;
+    btn.textContent = '✓ Kopierat!';
+    setTimeout(()=>{ btn.textContent='📋 Kopiera till TS'; }, 2000);
+  });
+}
 function resetVeto(){
   vetoPendingSide=null;
   vetoFormat='bo3';
@@ -1171,7 +1205,7 @@ function pushRoomState(extra={}){
     const left=vetoMaps.find(m=>m.state==='available');
     if(left){
       left.state='decider'; mapsObj[left.name]={state:'decider',side:'',pickedBy:0};
-      const entry={num:nextStep+1,text:`${left.name} var kvar (Decider)`,color:'var(--yellow)',pickMap:'',sideHtml:''};
+      const entry={num:nextStep+1,text:`${left.name} was left over`,color:'var(--yellow)',pickMap:'',sideHtml:''};
       vetoLog.push(entry); logObj[nextStep]=entry;
       update={...update,maps:mapsObj,log:logObj,status:'done',step:nextStep+1};
     }
